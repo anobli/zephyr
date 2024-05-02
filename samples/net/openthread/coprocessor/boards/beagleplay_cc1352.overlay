@@ -1,0 +1,68 @@
+/*
+ * Copyright (c) 2024 Alexandre Bailon
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/ {
+	chosen {
+                zephyr,ot-uart = &uart0;
+		zephyr,shell-uart = &uart1;
+                zephyr,console = &uart1;
+		zephyr,ieee802154 = &ieee802154;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+};
+
+&flash0 {
+	partitions {
+		/* 40 KiB (0xa000) for MCUboot */
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x00000000 0x0000a000>;
+		};
+
+		/* 136 KiB (0x22000) per slot for application */
+		slot0_partition: partition@a000 {
+			label = "image-0";
+			reg = <0x0000a000 0x00022000>;
+		};
+
+		slot1_partition: partition@2c000 {
+			label = "image-1";
+			reg = <0x0002c000 0x00022000>;
+		};
+
+		/* 32 KiB (0x8000) for storage */
+		storage_partition: partition@4e000 {
+			label = "storage";
+			reg = <0x0004e000 0x00008000>;
+		};
+
+		/* CCFG (customer configuration area) is located in uppermost
+		 * flash sector (0x2000/8 KiB @ 0x56000), keep it unused.
+		 */
+	};
+};
+
+/* Not wired, just to compile the sample */
+&pinctrl {
+	/* UART1 */
+	uart1_tx_default: uart1_tx_default {
+		pinmux = <22 IOC_PORT_MCU_UART1_TX>;
+		bias-disable;
+	};
+	uart1_rx_default: uart1_rx_default {
+		pinmux = <21 IOC_PORT_MCU_UART1_RX>;
+		bias-disable;
+		input-enable;
+	};
+};
+
+&uart1 {
+	status = "okay";
+	current-speed = <115200>;
+	pinctrl-0 = <&uart1_rx_default &uart1_tx_default>;
+	pinctrl-names = "default";
+};
