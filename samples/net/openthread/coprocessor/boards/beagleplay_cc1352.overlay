@@ -26,22 +26,22 @@
 		/* 136 KiB (0x22000) per slot for application */
 		slot0_partition: partition@a000 {
 			label = "image-0";
-			reg = <0x0000a000 0x00022000>;
+			reg = <0x0000a000 0x0004e000>;
 		};
 
-		slot1_partition: partition@2c000 {
+		slot1_partition: partition@58000 {
 			label = "image-1";
-			reg = <0x0002c000 0x00022000>;
+			reg = <0x00058000 0x0004e000>;
 		};
 
 		/* 32 KiB (0x8000) for storage */
-		storage_partition: partition@4e000 {
+		storage_partition: partition@a6000 {
 			label = "storage";
-			reg = <0x0004e000 0x00008000>;
+			reg = <0x000a6000 0x00008000>;
 		};
 
 		/* CCFG (customer configuration area) is located in uppermost
-		 * flash sector (0x2000/8 KiB @ 0x56000), keep it unused.
+		 * flash sector (0x2000/8 KiB @ 0xae000), keep it unused.
 		 */
 	};
 };
