@@ -6,6 +6,10 @@
 # Download cc1352-flasher (https://pypi.org/project/cc1352-flasher/) using the following command:
 # pip3 install cc1352-flasher
 
+set(OPENOCD /usr/bin/openocd)
+set(OPENOCD_DEFAULT_PATH /usr/share/openocd/scripts)
+include(${ZEPHYR_BASE}/boards/common/openocd.board.cmake)
+
 find_program(CC1352_FLASHER NAMES cc1352_flasher)
 board_set_flasher_ifnset(misc-flasher)
 board_finalize_runner_args(misc-flasher ${CC1352_FLASHER} --bcf)
