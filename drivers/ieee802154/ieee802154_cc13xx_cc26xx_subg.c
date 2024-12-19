@@ -33,6 +33,10 @@ LOG_MODULE_REGISTER(ieee802154_cc13xx_cc26xx_subg);
 
 #include "ieee802154_cc13xx_cc26xx_subg.h"
 
+#if defined(CONFIG_NET_L2_OPENTHREAD)
+#include <zephyr/net/openthread.h>
+#endif
+
 static int drv_start_rx(const struct device *dev);
 static int drv_stop_rx(const struct device *dev);
 
@@ -444,7 +448,11 @@ static enum ieee802154_hw_caps
 ieee802154_cc13xx_cc26xx_subg_get_capabilities(const struct device *dev)
 {
 	/* TODO: enable IEEE802154_HW_FILTER */
+#ifdef CONFIG_NET_L2_OPENTHREAD
+	return IEEE802154_HW_FCS | IEEE802154_HW_TX_RX_ACK;
+#else
 	return IEEE802154_HW_FCS;
+#endif
 }
 
 static int ieee802154_cc13xx_cc26xx_subg_cca(const struct device *dev)
@@ -1052,12 +1060,21 @@ static struct ieee802154_cc13xx_cc26xx_subg_data ieee802154_cc13xx_cc26xx_subg_d
 };
 
 #if defined(CONFIG_NET_L2_IEEE802154)
+#define L2 IEEE802154_L2
+#define L2_CTX_TYPE NET_L2_GET_CTX_TYPE(IEEE802154_L2)
+#define MTU IEEE802154_MTU
+#elif defined(CONFIG_NET_L2_OPENTHREAD)
+#define L2 OPENTHREAD_L2
+#define L2_CTX_TYPE NET_L2_GET_CTX_TYPE(OPENTHREAD_L2)
+#define MTU 1280
+#endif
+
+#if defined(CONFIG_NET_L2_IEEE802154) || defined(CONFIG_NET_L2_PHY_IEEE802154)
 NET_DEVICE_DT_INST_DEFINE(0, ieee802154_cc13xx_cc26xx_subg_init, NULL,
 			  &ieee802154_cc13xx_cc26xx_subg_data, NULL,
 			  CONFIG_IEEE802154_CC13XX_CC26XX_SUB_GHZ_INIT_PRIO,
 			  &ieee802154_cc13xx_cc26xx_subg_radio_api,
-			  IEEE802154_L2, NET_L2_GET_CTX_TYPE(IEEE802154_L2),
-			  IEEE802154_MTU);
+			  L2, L2_CTX_TYPE, MTU);
 #else
 DEVICE_DT_INST_DEFINE(0, ieee802154_cc13xx_cc26xx_subg_init, NULL,
 		      &ieee802154_cc13xx_cc26xx_subg_data, NULL, POST_KERNEL,
