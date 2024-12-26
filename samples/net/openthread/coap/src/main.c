@@ -7,6 +7,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(coap);
 
+#include <openthread/thread.h>
 #include <coap_utils.h>
 
 #ifdef CONFIG_OT_COAP_SAMPLE_LED
@@ -16,6 +17,10 @@ LOG_MODULE_REGISTER(coap);
 #ifdef CONFIG_OT_COAP_SAMPLE_SW
 #include <zephyr/drivers/gpio.h>
 #include "button.h"
+
+#ifdef CONFIG_OT_COAP_SAMPLE_SRP
+#include "srp.h"
+#endif
 
 /*
  * Get button configuration from the devicetree sw0 alias. This is mandatory.
@@ -33,9 +38,36 @@ void button_pressed(const struct device *dev, struct gpio_callback *cb, uint32_t
 }
 #endif /* CONFIG_OT_COAP_SAMPLE_SW */
 
+static void on_thread_state_changed(otChangedFlags flags,
+									struct openthread_context *ctx,
+									void *data)
+{
+	if (flags & OT_CHANGED_THREAD_ROLE) {
+		switch(otThreadGetDeviceRole(ctx->instance)) {
+			case OT_DEVICE_ROLE_CHILD:
+			case OT_DEVICE_ROLE_ROUTER:
+			case OT_DEVICE_ROLE_LEADER:
+			LOG_INF("Connected to a thread network!");
+#ifdef CONFIG_OT_COAP_SAMPLE_SRP
+				ot_srp_init();
+				break;
+#endif
+			default:
+			LOG_INF("Not connected to a thread network!");
+				break;
+		}
+	}
+}
+
+static struct openthread_state_changed_cb ot_state_changed_cb = {
+	.state_changed_cb = on_thread_state_changed,
+};
+
 int main(void)
 {
 	int ret;
+
+	openthread_state_changed_cb_register(openthread_get_default_context(), &ot_state_changed_cb);
 
 #ifdef CONFIG_OT_COAP_SAMPLE_SERVER
 #ifdef CONFIG_OT_COAP_SAMPLE_LED

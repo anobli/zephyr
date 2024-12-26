@@ -15,6 +15,7 @@ target_sources(app PRIVATE
 
 target_sources_ifdef(CONFIG_OT_COAP_SAMPLE_LED app PRIVATE src/led.c)
 target_sources_ifdef(CONFIG_OT_COAP_SAMPLE_SW app PRIVATE src/button.c)
+target_sources_ifdef(CONFIG_OT_COAP_SAMPLE_SRP app PRIVATE src/srp.c)
 
 include(${ZEPHYR_BASE}/samples/net/common/common.cmake)
 

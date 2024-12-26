@@ -18,6 +18,11 @@ config OT_COAP_SAMPLE_SW
 	bool "Enable switch support"
 	default y
 
+config OT_COAP_SAMPLE_SRP
+	bool "Enable SRP"
+	select OPENTHREAD_SRP_CLIENT
+	default y
+
 endmenu
 
 source "Kconfig.zephyr"
