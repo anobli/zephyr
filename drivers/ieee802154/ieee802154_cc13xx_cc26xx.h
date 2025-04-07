@@ -59,6 +59,11 @@
 #define CC13XX_CC26XX_RECEIVER_SENSITIVITY -100
 #define CC13XX_CC26XX_INVALID_RSSI INT8_MIN
 
+enum radio_state {
+        radio_sleep,
+        radio_active,
+};
+
 struct ieee802154_cc13xx_cc26xx_data {
 	RF_Handle rf_handle;
 	RF_Object rf_object;
@@ -93,6 +98,7 @@ struct ieee802154_cc13xx_cc26xx_data {
 #endif /* CONFIG_SOC_CCxx52x */
 
 	volatile int16_t saved_cmdhandle;
+        enum radio_state state;
 };
 
 #endif /* ZEPHYR_DRIVERS_IEEE802154_IEEE802154_CC13XX_CC26XX_H_ */

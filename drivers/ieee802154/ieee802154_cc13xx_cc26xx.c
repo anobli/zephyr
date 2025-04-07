@@ -207,9 +207,15 @@ static int ieee802154_cc13xx_cc26xx_set_channel(const struct device *dev,
 		goto out;
 	}
 
+        /* Update RX channel */
+        drv_data->cmd_ieee_rx.channel = channel;
+
+        /* Only resume RX operations if we are in active state */
+        if (drv_data->state == radio_sleep)
+                goto out;
+
 	/* Run BG receive process on requested channel */
 	drv_data->cmd_ieee_rx.status = IDLE;
-	drv_data->cmd_ieee_rx.channel = channel;
 	cmd_handle = RF_postCmd(drv_data->rf_handle,
 		(RF_Op *)&drv_data->cmd_ieee_rx, RF_PriorityNormal,
 		cmd_ieee_rx_callback, RF_EventRxEntryDone);
@@ -459,9 +465,33 @@ static void ieee802154_cc13xx_cc26xx_rx_done(
 
 static int ieee802154_cc13xx_cc26xx_start(const struct device *dev)
 {
-	ARG_UNUSED(dev);
+	int ret = 0;
+	RF_CmdHandle cmd_handle;
+	struct ieee802154_cc13xx_cc26xx_data *drv_data = dev->data;
 
-	return 0;
+	/* Block TX while changing channel */
+	k_mutex_lock(&drv_data->tx_mutex, K_FOREVER);
+
+
+        /* Skip we are already in the active state */
+        if (drv_data->state == radio_active)
+                goto out;
+
+	/* Run BG receive process on requested channel */
+	drv_data->cmd_ieee_rx.status = IDLE;
+	cmd_handle = RF_postCmd(drv_data->rf_handle,
+		(RF_Op *)&drv_data->cmd_ieee_rx, RF_PriorityNormal,
+		cmd_ieee_rx_callback, RF_EventRxEntryDone);
+	if (cmd_handle < 0) {
+		LOG_ERR("Failed to post RX command (%d)", cmd_handle);
+		ret = -EIO;
+		goto out;
+	}
+        drv_data->state = radio_active;
+
+out:
+	k_mutex_unlock(&drv_data->tx_mutex);
+	return ret;
 }
 
 static int ieee802154_cc13xx_cc26xx_stop(const struct device *dev)
@@ -498,7 +528,12 @@ static int ieee802154_cc13xx_cc26xx_stop_if(const struct device *dev)
 
 	/* power down radio */
 	RF_yield(drv_data->rf_handle);
-	return 0;
+
+        k_mutex_lock(&drv_data->tx_mutex, K_FOREVER);
+        drv_data->state = radio_sleep;
+        k_mutex_unlock(&drv_data->tx_mutex);
+
+        return 0;
 }
 
 static int
@@ -691,6 +726,8 @@ static int ieee802154_cc13xx_cc26xx_init(const struct device *dev)
 		LOG_ERR("Failed to set frequency: 0x%" PRIx64, reason);
 		return -EIO;
 	}
+
+        drv_data->state = radio_sleep;
 
 	return 0;
 }
