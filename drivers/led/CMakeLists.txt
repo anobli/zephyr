@@ -6,6 +6,7 @@ zephyr_library()
 
 zephyr_library_sources_ifdef(CONFIG_LED_SHELL led_shell.c)
 zephyr_library_sources_ifdef(CONFIG_USERSPACE led_handlers.c)
+zephyr_library_sources_ifdef(CONFIG_LED_BLINK_FALLBACK blink_fallback.c)
 
 # zephyr-keep-sorted-start
 zephyr_library_sources_ifdef(CONFIG_HT16K33 ht16k33.c)
