@@ -32,7 +32,7 @@ static void led_blink_fallback_on(struct k_work *work)
 	if (api->on) {
 		api->on(data->dev, data->led);
 	} else {
-		api->set_brightness(data->dev, data->led, LED_BRIGTHNESS_MAX);
+		api->set_brightness(data->dev, data->led, LED_BRIGHTNESS_MAX);
 	}
 	k_work_init_delayable(&data->work, led_blink_fallback_off);
 	k_work_schedule(&data->work, K_MSEC(data->delay_on));
