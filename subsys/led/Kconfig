@@ -1,0 +1,13 @@
+# Copyright (c) 2026 BayLibre SAS
+# SPDX-License-Identifier: Apache-2.0
+
+config LED_PLAYER
+	bool "Enable the LED player"
+	depends on LED
+	help
+	  LED player allow to play an animation
+	  on a LED.
+	   This is useful when the LED is the only way
+	   to get a status. using the LED player, we could
+	   create an play a specific animation for each
+	   status to report using the LED.
