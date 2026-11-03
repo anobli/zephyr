@@ -11,3 +11,11 @@ config LED_PLAYER
 	   to get a status. using the LED player, we could
 	   create an play a specific animation for each
 	   status to report using the LED.
+
+config STATUS_LED
+	bool "Enable the status LED"
+	depends on LED_PLAYER
+	help
+	  Provide an easy way to run a specific LED animation
+	  based on a status code. This is useful let know user
+	  when device is facing an issue which issue it is.
