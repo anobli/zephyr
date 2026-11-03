@@ -1,0 +1,39 @@
+#include <zephyr/dt-bindings/gpio/gpio.h>
+
+/ {
+        gpio_fake: gpio_fake {
+                status = "okay";
+                compatible = "zephyr,gpio-fake";
+                gpio-controller;
+                #gpio-cells = <2>;
+        };
+
+	led_0: led_0 {
+		compatible = "gpio-leds";
+		led {
+			gpios = <&gpio_fake 1 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	led_1: led_1 {
+		compatible = "gpio-leds";
+		led {
+			gpios = <&gpio_fake 2 GPIO_ACTIVE_HIGH>;
+		};
+	};
+
+	led_2: led_2 {
+		compatible = "gpio-leds";
+		led_r {
+			gpios = <&gpio_fake 3 GPIO_ACTIVE_HIGH>;
+		};
+
+		led_g {
+			gpios = <&gpio_fake 4 GPIO_ACTIVE_HIGH>;
+		};
+
+		led_b {
+			gpios = <&gpio_fake 5 GPIO_ACTIVE_HIGH>;
+		};
+	};
+};
